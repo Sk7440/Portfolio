@@ -99,17 +99,31 @@ nav a:hover {
   letter-spacing: 1.7px;
   color: var(--accent);
 }
-h1 {
-  font-size: clamp(48px, 6.5vw, 79px);
-  line-height: 1.03;
-  letter-spacing: -4px;
-  margin: 17px 0 25px;
+@media (min-width: 768px) {
+  h1 {
+    font-size: clamp(48px, 6.5vw, 79px);
+    letter-spacing: -4px;
+  }
 }
-h2 {
-  font-size: 43px;
-  line-height: 1.1;
-  letter-spacing: -2px;
-  margin: 0;
+
+@media (max-width: 768px) {
+  h1 {
+    font-size: clamp(36px, 8vw, 56px);
+    letter-spacing: -2.5px;
+  }
+}
+@media (min-width: 768px) {
+  h2 {
+    font-size: 43px;
+    letter-spacing: -2px;
+  }
+}
+
+@media (max-width: 768px) {
+  h2 {
+    font-size: 32px;
+    letter-spacing: -1.5px;
+  }
 }
 .lead {
   max-width: 630px;
@@ -247,12 +261,12 @@ h2 {
   gap: 14px;
 }
 .project {
-  min-height: 420px;
   background: var(--surface);
   border: 1px solid var(--line);
   display: flex;
   flex-direction: column;
   padding: 22px;
+  height: 100%;
 }
 .project:hover {
   border-color: #41464f;
@@ -320,8 +334,16 @@ h2 {
   gap: 70px;
   align-items: end;
 }
-.contact h2 {
-  font-size: 57px;
+@media (min-width: 768px) {
+  .contact h2 {
+    font-size: 57px;
+  }
+}
+
+@media (max-width: 768px) {
+  .contact h2 {
+    font-size: 43px;
+  }
 }
 .contactBox {
   border-left: 1px solid #7f9941;
@@ -338,6 +360,7 @@ h2 {
   border-bottom: 1px solid #71873d;
   padding: 13px 0;
   font-weight: 800;
+  word-break: break-all;
 }
 .contactBox span {
   display: block;
@@ -355,7 +378,7 @@ footer .wrap {
   display: flex;
   justify-content: space-between;
 }
-@media (max-width: 850px) {
+@media (max-width: 768px) {
   nav {
     display: none;
   }
@@ -373,6 +396,8 @@ footer .wrap {
     flex-direction: column;
     align-items: flex-start;
     border-bottom: 1px solid var(--line);
+    max-height: calc(100vh - 76px);
+    overflow-y: auto;
   }
   .hero {
     grid-template-columns: 1fr;
@@ -399,7 +424,7 @@ footer .wrap {
     font-size: 43px;
   }
 }
-@media (max-width: 500px) {
+@media (max-width: 640px) {
   .wrap {
     width: min(100% - 28px, var(--max));
   }
