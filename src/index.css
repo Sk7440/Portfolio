@@ -1,1 +1,48 @@
 @import "tailwindcss";
+
+@theme {
+  --font-sans: Manrope, Arial, sans-serif;
+  --font-mono: "DM Mono", monospace;
+
+  --color-bg: #0b0c0e;
+  --color-surface: #111317;
+  --color-surface2: #17191e;
+  --color-text: #f1f1ee;
+  --color-muted: #9b9da4;
+  --color-line: #282b31;
+  --color-accent: #c7f36b;
+
+  --animate-blink: blink 1.1s steps(1) infinite;
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-bg text-text font-sans leading-[1.65] overflow-x-clip;
+  }
+  section[id] {
+    scroll-margin-top: 76px;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+  #contact :focus-visible {
+    outline-color: var(--color-bg);
+  }
+}
+
+@utility wrap {
+  width: min(1120px, 100% - 32px);
+  margin-inline: auto;
+  @variant sm {
+    width: min(1120px, 100% - 44px);
+  }
+}
