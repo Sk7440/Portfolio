@@ -7,7 +7,7 @@ import anthropic
 
 from .knowledge import Chunk
 
-MODEL = os.environ.get("CLAUDE_MODEL", "claude-opus-5-5")
+MODEL = os.environ.get("CLAUDE_MODEL") or "claude-opus-5-5"  # an empty CLAUDE_MODEL= line also means default
 MAX_TOKENS = 2048  # hard cap per answer: this endpoint is public, so cost has to stay bounded
 
 # Stable across requests so it can be prompt-cached. Retrieved facts go in the user turn instead.
