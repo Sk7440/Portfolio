@@ -1,4 +1,4 @@
-"""Backend tests. The Anthropic call is faked, so these run offline and cost nothing:
+"""Backend tests. The Ollama call is faked, so these run offline and cost nothing:
     .venv/Scripts/python -m pytest      (Windows)
     .venv/bin/python -m pytest          (macOS/Linux)
 """
@@ -7,6 +7,9 @@ import json
 import os
 import sys
 
+import asyncio
+
+import httpx
 import pytest
 from fastapi.testclient import TestClient
 
@@ -44,7 +47,8 @@ def test_core_profile_always_included_and_vague_questions_get_an_overview():
 
 @pytest.fixture
 def client(monkeypatch):
-    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
+    for var in ("VERCEL", "OLLAMA_API_KEY", "OLLAMA_HOST"):
+        monkeypatch.delenv(var, raising=False)
     index._hits.clear()
     calls = []
 
@@ -91,16 +95,59 @@ def test_rate_limit(client):
     assert ask(client, "hi").status_code == 429
 
 
-def test_offline_without_api_key(client, monkeypatch):
-    monkeypatch.delenv("ANTHROPIC_API_KEY")
+def test_offline_on_vercel_without_ollama_key(client, monkeypatch):
+    monkeypatch.setenv("VERCEL", "1")
     assert ask(client, "hi").status_code == 503
+    monkeypatch.setenv("OLLAMA_API_KEY", "test-key")
+    assert ask(client, "hi").status_code == 200
 
 
-def test_request_options_only_add_fallbacks_for_models_that_support_them(monkeypatch):
-    monkeypatch.setattr(chat_mod, "MODEL", "claude-opus-5-5")
-    assert chat_mod._request_options()["fallbacks"] == "default"
-    monkeypatch.setattr(chat_mod, "MODEL", "claude-haiku-5-5")
-    assert "fallbacks" not in chat_mod._request_options()
+def test_host_is_local_unless_a_cloud_key_is_set(monkeypatch):
+    for var in ("OLLAMA_API_KEY", "OLLAMA_HOST"):
+        monkeypatch.delenv(var, raising=False)
+    assert chat_mod.ollama_host() == "http://localhost:11434"
+    monkeypatch.setenv("OLLAMA_API_KEY", "k")
+    assert chat_mod.ollama_host() == "https://ollama.com"
+    monkeypatch.setenv("OLLAMA_HOST", "http://gpu-box:11434/")
+    assert chat_mod.ollama_host() == "http://gpu-box:11434"
+
+
+def test_payload_has_system_prompt_history_and_context():
+    history = [{"role": "user", "content": "hi"}, {"role": "assistant", "content": "hello"}]
+    p = chat_mod.build_payload(history, "Who is he?", retriever.search("who"))
+    assert p["model"] == chat_mod.MODEL and p["stream"] is True
+    assert p["messages"][0]["role"] == "system"
+    assert p["messages"][1:3] == history
+    assert p["messages"][-1]["content"].startswith("<context>")
+
+
+def _collect(handler) -> str:
+    async def run():
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler), base_url="http://ollama") as c:
+            return "".join([t async for t in chat_mod.stream_answer(c, [], "Who is he?", [])])
+
+    return asyncio.run(run())
+
+
+def test_stream_answer_reads_ollama_ndjson_and_skips_thinking():
+    lines = [
+        {"message": {"role": "assistant", "content": "", "thinking": "hmm"}, "done": False},
+        {"message": {"role": "assistant", "content": "Sultan is "}, "done": False},
+        {"message": {"role": "assistant", "content": "an AI engineer."}, "done": False},
+        {"message": {"role": "assistant", "content": ""}, "done": True, "done_reason": "stop"},
+    ]
+    body = "\n".join(json.dumps(x) for x in lines)
+    assert _collect(lambda req: httpx.Response(200, text=body)) == "Sultan is an AI engineer."
+
+
+def test_stream_answer_turns_errors_into_friendly_text():
+    assert "busy" in _collect(lambda req: httpx.Response(429))
+    assert "email Sultan" in _collect(lambda req: httpx.Response(500, text="boom"))
+
+    def down(req):
+        raise httpx.ConnectError("refused")
+
+    assert "couldn't reach" in _collect(down)
 
 
 def test_user_turn_wraps_context():

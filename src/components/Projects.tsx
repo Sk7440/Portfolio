@@ -128,13 +128,13 @@ export default function Projects() {
           ))}
         </div>
 
-        {/* Earlier frontend work. On large screens animations.js pins this block and slides the
+        {/* Earlier web projects. On large screens animations.js pins this block and slides the
             track sideways as you scroll; elsewhere (and with reduced motion) it's a normal grid. */}
         <div data-hscroll className="group/h mt-[clamp(64px,9vw,110px)]">
           <div data-reveal className="mb-7 flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="font-mono text-[11px] font-medium tracking-[1.7px] text-accent">THE FRONTEND FOUNDATION</p>
-              <h3 className="mt-2 text-[clamp(24px,1.5vw+16px,32px)] font-bold tracking-[-0.035em]">Earlier frontend work</h3>
+              <p className="font-mono text-[11px] font-medium tracking-[1.7px] text-accent">BEFORE AI</p>
+              <h3 className="mt-2 text-[clamp(24px,1.5vw+16px,32px)] font-bold tracking-[-0.035em]">Earlier web projects</h3>
             </div>
             <p className="max-w-[360px] text-sm text-muted">Why my AI apps come with interfaces people actually enjoy using.</p>
           </div>

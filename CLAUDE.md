@@ -11,13 +11,13 @@ Requires Node.js 20+ and Python 3.12+. Backend deps live in `.venv` (`uv venv .v
 - `npm run dev:all`: both together
 - `npm run build` / `npm run start`: production build and serve
 - `npm run lint`: ESLint (flat config in `eslint.config.mjs`)
-- `npm run test:api`: pytest for the backend. A single test: `.venv/Scripts/python -m pytest tests/test_api.py -k rate_limit` (`.venv/bin/python` on macOS/Linux). The Claude call is faked, so tests are offline and free.
+- `npm run test:api`: pytest for the backend. A single test: `.venv/Scripts/python -m pytest tests/test_api.py -k rate_limit` (`.venv/bin/python` on macOS/Linux). The Ollama call is faked, so tests are offline and free.
 
 Verify frontend changes with `npm run build` and `npm run lint` (no frontend tests), and check phone, tablet and desktop widths. Deployed on Vercel (https://skportfolio-sigma.vercel.app/).
 
 ## Architecture
 
-A single-page portfolio for Muhammad Sultan Khalid, positioned as a frontend developer moving into AI engineering ("AI Application Engineer"): AI work leads, frontend work is shown as the foundation. Next.js 16 App Router + React 19 + TypeScript, with a FastAPI backend in the same repo.
+A single-page portfolio for Muhammad Sultan Khalid, positioned as an aspiring AI engineer: AI work leads, earlier web projects are shown as background. Don't describe him as a frontend developer (the Appverse internship's frontend track stays as a fact, not an identity). Next.js 16 App Router + React 19 + TypeScript, with a FastAPI backend in the same repo.
 
 - `src/app/page.tsx` composes the sections in order: Navbar, Hero, About, Journey, Skills, Projects, AskAI, Contact, Footer, all inside `MotionRoot`. Sections are server components unless they need state (`Navbar`, `AskAI`); interactive pieces are small client components (`HeroCanvas`, React Bits components).
 - `MotionRoot.tsx` is the only page-level client wrapper. It runs `animatePortfolio` via `useGSAP` (scoped to its root div) and Lenis smooth scrolling driven by GSAP's ticker.
@@ -25,16 +25,17 @@ A single-page portfolio for Muhammad Sultan Khalid, positioned as a frontend dev
 - Content is hard-coded as constants at the top of each section file (`featured`/`roadmap`/`frontend` in `Projects.tsx`, `skillGroups` in `Skills.tsx`, `education` in `About.tsx`, `steps` in `Journey.tsx`). Keep it that way; no CMS.
 - Don't overstate experience. Skills still being learned go in `learning` (dashed chips), unbuilt projects in `roadmap` labelled "Building next"/"Planned". Don't invent clients, results or seniority, on the page or in the assistant's knowledge.
 - `src/components/reactbits/` holds React Bits components copied from reactbits.dev (TS + Tailwind variant), kept close to upstream; local edits are noted in each file's header. Lint rules from the React Compiler preset are relaxed for that folder only. Wrap them rather than editing (e.g. `GlowCard.tsx` themes `SpotlightCard`, `SectionHead.tsx` uses `SplitText`).
-- `NeuralField.tsx` is the hero's three.js scene, loaded client-only through `HeroCanvas.tsx` (`next/dynamic`, `ssr: false`), which also waits for `requestIdleCallback` so WebGL setup doesn't block first paint. It caps pixel ratio at 1.25 (no MSAA on high-DPI), renders only while on screen, repaints after resize when no loop is running, draws one static frame under reduced motion and disposes everything on unmount; keep those properties.
+- The hero is full-bleed: the canvas fills the section from `lg` up (the top block on phones) with gradient scrims for contrast, the copy on top, and mono labels framing the edges. ThreeUI (threeui.com) is the visual reference.
+- `NeuralField.tsx` is the hero's three.js scene (a noise-displaced particle sphere in a `ShaderMaterial`, an orbit ring and tokens streaming in; scrolling scatters the sphere), loaded client-only through `HeroCanvas.tsx` (`next/dynamic`, `ssr: false`), which also waits for `requestIdleCallback` so WebGL setup doesn't block first paint. It caps pixel ratio at 1.25 (no MSAA on high-DPI), renders only while on screen, repaints after resize when no loop is running, draws one static frame under reduced motion and disposes everything on unmount; keep those properties.
 - "Hire me" downloads `public/Muhammad_Sultan_Khalid_CV.pdf`. To replace the CV, keep the file name.
 
 ## Backend ("Ask my AI")
 
 - `api/index.py` is the FastAPI app. All routes live under `/api/py/` (`/chat`, `/health`, `/docs`). `next.config.ts` rewrites `/api/py/*` to `127.0.0.1:8000` in development and to the Vercel Python function (`/api/`) in production; FastAPI still sees the original `/api/py/...` path.
-- Helpers are in `api/_portfolio/` (the underscore keeps Vercel from treating them as functions; `index.py` adds its own folder to `sys.path`): `knowledge.py` (the only facts the assistant knows, as `Chunk`s with optional search `keywords`), `retrieval.py` (dependency-free BM25; the `CORE` chunk is always included, weak matches under half the top score are dropped), `chat.py` (system prompt and the streaming Claude call).
-- The model comes from `CLAUDE_MODEL` (default `claude-opus-5-5`) with `output_config.effort: "low"` and `max_tokens` 2048. Server-side `fallbacks: "default"` (beta `server-side-fallback-2026-07-01`) is sent for every model except Haiku, which doesn't support it. Thinking can't be disabled on Opus 5.5, so don't add `thinking: {type: "disabled"}`.
+- Helpers are in `api/_portfolio/` (the underscore keeps Vercel from treating them as functions; `index.py` adds its own folder to `sys.path`): `knowledge.py` (the only facts the assistant knows, as `Chunk`s with optional search `keywords`), `retrieval.py` (dependency-free BM25; the `CORE` chunk is always included, weak matches under half the top score are dropped), `chat.py` (system prompt and the streaming Ollama call).
+- The model runs on Ollama: `OLLAMA_MODEL` (default `gemma4:31b-cloud`) via Ollama's native `/api/chat` streaming (NDJSON), called with `httpx` (no Anthropic SDK). The host is local Ollama (`http://localhost:11434`) unless `OLLAMA_API_KEY` is set (then `https://ollama.com` with a Bearer key, needed on Vercel) or `OLLAMA_HOST` overrides it. Requests send `num_predict` 2048 and temperature 0.3. Only `message.content` is streamed; a thinking model's `message.thinking` is dropped.
 - The system prompt is static so it can be prompt-cached; retrieved context goes in the latest user turn inside `<context>`. Keep anything per-request out of `SYSTEM_PROMPT`.
-- `/api/py/chat` streams `text/plain` and returns retrieved chunk titles in an `X-Sources` header. Errors before streaming are JSON `{error}` with 400/429/503 (503 when `ANTHROPIC_API_KEY` is unset); errors mid-stream become a friendly sentence in the stream. The rate limit is in-memory per serverless instance, a speed bump rather than a guarantee.
+- `/api/py/chat` streams `text/plain` and returns retrieved chunk titles in an `X-Sources` header. Errors before streaming are JSON `{error}` with 400/429/503 (503 on Vercel when neither `OLLAMA_API_KEY` nor `OLLAMA_HOST` is set); errors mid-stream become a friendly sentence in the stream. The rate limit is in-memory per serverless instance, a speed bump rather than a guarantee.
 - The frontend sends only plain `{role, content}` turns (max 12, starting with a user turn, failed exchanges dropped); see `toHistory` in `AskAI.tsx`. The message list has `data-lenis-prevent` so it scrolls natively.
 
 ## Styling

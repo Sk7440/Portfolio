@@ -9,9 +9,9 @@ const steps: { when: string; title: string; place: string; text: string; next?: 
   },
   {
     when: 'Self-taught',
-    title: 'Frontend development',
+    title: 'Learning to build',
     place: 'React · Next.js · TypeScript',
-    text: 'Taught myself the modern frontend stack and shipped a task manager, a tour booking app and a finance dashboard on Vercel.',
+    text: 'Taught myself to build for the web and shipped a task manager, a tour booking app and a finance dashboard on Vercel.',
   },
   {
     when: 'Sep 2026 – now',
@@ -21,13 +21,13 @@ const steps: { when: string; title: string; place: string; text: string; next?: 
   },
   {
     when: 'Oct 2026 – now',
-    title: 'Frontend Developer Intern',
-    place: 'Appverse Technologies · Remote',
+    title: 'Developer Intern',
+    place: 'Appverse Technologies · Remote · Frontend track',
     text: 'Web foundations and JavaScript in production: BEM, design tokens, CSS variables, ES6+ data pipelines and accessible UI.',
   },
   {
     when: 'Next',
-    title: 'AI Application Engineer',
+    title: 'AI Engineer',
     place: 'The goal',
     text: 'Shipping LLM features end to end. Building a RAG app with answer-quality evals and a tool-using agent, both deployed publicly.',
     next: true,

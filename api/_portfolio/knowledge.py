@@ -19,9 +19,9 @@ class Chunk:
 CORE = Chunk(
     "core",
     "Profile",
-    """Muhammad Sultan Khalid (goes by Sultan) is based in Lahore, Pakistan. He is a frontend developer
-moving into AI engineering, positioning himself as an AI Application Engineer: someone who ships LLM
-features end to end, from a Python/FastAPI backend to a React/Next.js interface people want to use.
+    """Muhammad Sultan Khalid (goes by Sultan) is based in Lahore, Pakistan. He is an aspiring AI engineer
+who ships LLM features end to end: retrieval, streaming and multi-provider backends in Python/FastAPI,
+with a React/Next.js interface people want to use. He came to AI from industrial engineering and web development.
 He is early in his AI career (junior / aspiring AI engineer), not a senior or research ML engineer.
 Contact: email Sultankhalid1007@gmail.com, phone 0348-0719674, GitHub github.com/Sk7440,
 LinkedIn linkedin.com/in/sultan-khalid-ai.""",
@@ -32,7 +32,7 @@ CHUNKS: list[Chunk] = [
         "looking-for",
         "Roles he is looking for",
         """Sultan is open to junior AI Engineer, Generative AI Engineer, AI Application Developer and Python
-Developer roles, and to frontend roles with an AI focus. He is open to work in Lahore or remote, and has
+Developer roles. He is open to work in Lahore or remote, and has
 listed the UK, UAE, US and Australia/New Zealand as locations of interest. Best way to reach him is email:
 Sultankhalid1007@gmail.com.""",
         "available hire hiring open role job remote relocate",
@@ -80,7 +80,7 @@ and checks.""",
         """This portfolio is built with Next.js, React, TypeScript and Tailwind CSS, with GSAP, Lenis smooth
 scrolling, a three.js neural-network scene and React Bits components. The "Ask about Sultan" assistant is
 a FastAPI backend that retrieves the most relevant facts about Sultan (a small keyword/BM25 retrieval step,
-i.e. lightweight RAG) and streams an answer from Claude by Anthropic. It is deployed on Vercel.""",
+i.e. lightweight RAG) and streams an answer from Google's Gemma 4 model running on Ollama. It is deployed on Vercel.""",
         "portfolio website site chatbot assistant rag how built",
     ),
     Chunk(

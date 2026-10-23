@@ -33,11 +33,11 @@ export default function About() {
 
       <div className="mt-[clamp(40px,6vw,64px)] grid gap-6 text-[15px] text-muted md:grid-cols-2 md:gap-12">
         <p data-reveal>
-          My edge is that I come from the frontend. I can wire a FastAPI backend to Anthropic, OpenAI-compatible
-          APIs or a local Ollama model, and then ship the streaming chat UI on top of it in Next.js and TypeScript.
+          My edge is that I can ship the whole thing. I wire a FastAPI backend to Anthropic, OpenAI-compatible
+          APIs or a local Ollama model, add retrieval and streaming, and put a chat UI on top in Next.js and TypeScript.
         </p>
         <p data-reveal="0.12">
-          Right now I’m in Corvit’s Applied AI program, interning as a frontend developer at Appverse Technologies,
+          Right now I’m in Corvit’s Applied AI program, interning at Appverse Technologies,
           and studying Computer Science at Virtual University. Next on my list: RAG with proper answer-quality
           evals, and tool-using agents.
         </p>

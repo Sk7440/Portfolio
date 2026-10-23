@@ -11,7 +11,7 @@ export default function Contact() {
           </h2>
         </div>
         <div data-reveal="0.15" className="min-w-0 border-t border-[#7f9941] pt-6 md:border-t-0 md:border-l md:pt-0 md:pl-7">
-          <p className="mb-3 max-w-[360px] text-sm">Open to junior AI engineer, AI application developer and Python roles, in Lahore or remote. Frontend roles with an AI focus too.</p>
+          <p className="mb-3 max-w-[360px] text-sm">Open to junior AI engineer, AI application developer and Python roles, in Lahore or remote.</p>
           <a
             className="group flex items-center justify-between gap-3 border-b border-[#71873d] py-3.5 font-extrabold [overflow-wrap:anywhere]"
             href="mailto:Sultankhalid1007@gmail.com"

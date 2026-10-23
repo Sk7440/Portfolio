@@ -8,14 +8,14 @@ import time
 from collections import defaultdict, deque
 from typing import Literal
 
-import anthropic
+import httpx
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
 sys.path.insert(0, os.path.dirname(__file__))  # so `_portfolio` imports work on Vercel and locally
 
-from _portfolio.chat import MODEL, stream_answer  # noqa: E402
+from _portfolio.chat import MODEL, configured, make_client, ollama_host, stream_answer  # noqa: E402
 from _portfolio.retrieval import retriever  # noqa: E402
 
 app = FastAPI(title="Sultan Khalid portfolio API", docs_url="/api/py/docs", openapi_url="/api/py/openapi.json")
@@ -36,7 +36,7 @@ class ChatRequest(BaseModel):
 
 
 # Per-instance memory: serverless instances don't share it, so this is a speed bump against
-# casual abuse, not a hard guarantee. Set a monthly spend limit in the Anthropic Console too.
+# casual abuse, not a hard guarantee. Keep an eye on your Ollama cloud usage too.
 _hits: dict[str, deque[float]] = defaultdict(deque)
 
 
@@ -59,19 +59,19 @@ def _client_ip(request: Request) -> str:
     return forwarded.split(",")[0].strip() or (request.client.host if request.client else "unknown")
 
 
-_client: anthropic.AsyncAnthropic | None = None
+_client: httpx.AsyncClient | None = None
 
 
-def _get_client() -> anthropic.AsyncAnthropic:
+def _get_client() -> httpx.AsyncClient:
     global _client
     if _client is None:
-        _client = anthropic.AsyncAnthropic(max_retries=1, timeout=60)
+        _client = make_client()
     return _client
 
 
 @app.get("/api/py/health")
 def health():
-    return {"ok": True, "model": MODEL, "assistant": bool(os.environ.get("ANTHROPIC_API_KEY"))}
+    return {"ok": True, "provider": "ollama", "host": ollama_host(), "model": MODEL, "assistant": configured()}
 
 
 @app.post("/api/py/chat")
@@ -82,7 +82,7 @@ async def chat(body: ChatRequest, request: Request):
     question = turns[-1].content.strip()
     if len(question) > MAX_CHARS:
         return JSONResponse({"error": f"Please keep questions under {MAX_CHARS} characters."}, status_code=400)
-    if not os.environ.get("ANTHROPIC_API_KEY"):
+    if not configured():
         return JSONResponse({"error": "The assistant is offline right now."}, status_code=503)
     if not _allowed(_client_ip(request)):
         return JSONResponse({"error": "Too many questions. Please try again in a few minutes."}, status_code=429)

@@ -1,6 +1,6 @@
 # Muhammad Sultan Khalid — Portfolio
 
-Personal portfolio of Muhammad Sultan Khalid, a frontend developer moving into AI engineering, based in Lahore, Pakistan.
+Personal portfolio of Muhammad Sultan Khalid, an aspiring AI engineer based in Lahore, Pakistan.
 
 Live site: https://skportfolio-sigma.vercel.app/
 
@@ -10,7 +10,7 @@ A single-page, scroll-animated site with About, Journey, Tech Stack, Projects an
 
 - **Frontend:** [Next.js 16](https://nextjs.org/) (App Router) · React 19 · TypeScript · [Tailwind CSS v4](https://tailwindcss.com/)
 - **Motion:** [GSAP](https://gsap.com/) + ScrollTrigger · [Lenis](https://lenis.darkroom.engineering/) smooth scroll · [three.js](https://threejs.org/) hero scene · [React Bits](https://reactbits.dev/) components (SplitText, ScrollReveal, ShinyText, TextType, Magnet, SpotlightCard, LatticeLoader)
-- **Backend:** [FastAPI](https://fastapi.tiangolo.com/) (Python) · [Anthropic Claude](https://docs.claude.com/) with streaming · BM25 retrieval
+- **Backend:** [FastAPI](https://fastapi.tiangolo.com/) (Python) · [Ollama](https://ollama.com/) (`gemma4:31b-cloud`) with streaming · BM25 retrieval
 - **Hosting:** Vercel (Next.js + a Python serverless function)
 
 ## How the AI assistant works
@@ -31,8 +31,9 @@ npm install
 uv venv .venv
 uv pip install --python .venv -r requirements-dev.txt
 
-# API key for the assistant (never commit this file)
-cp .env.example .env.local      # then set ANTHROPIC_API_KEY
+# Assistant model: install Ollama, sign in (`ollama signin`) and pull the cloud model
+ollama pull gemma4:31b-cloud
+cp .env.example .env.local      # optional overrides (never commit this file)
 ```
 
 Run the site and the API together (activate the venv first so `python` finds uvicorn):
@@ -59,8 +60,8 @@ Open http://localhost:3000. Next.js forwards `/api/py/*` to FastAPI on port 8000
 ## Deploying to Vercel
 
 1. Import the repo in Vercel (framework: Next.js). `api/index.py` and `requirements.txt` are picked up as a Python function automatically.
-2. In **Project Settings → Environment Variables**, add `ANTHROPIC_API_KEY`. Optionally set `CLAUDE_MODEL` (defaults to `claude-opus-5-5`; `claude-haiku-5-5` is much cheaper).
-3. Set a monthly spend limit in the [Anthropic Console](https://console.anthropic.com/), since the chat endpoint is public.
+2. In **Project Settings → Environment Variables**, add `OLLAMA_API_KEY` (an API key from [ollama.com](https://ollama.com/settings/keys)); Vercel has no local Ollama, so requests go to Ollama's cloud API. Optionally set `OLLAMA_MODEL` (defaults to `gemma4:31b-cloud`).
+3. Keep an eye on your Ollama cloud usage, since the chat endpoint is public.
 4. Check `https://<your-domain>/api/py/health` after deploying.
 
 ## Editing content

@@ -6,18 +6,18 @@ const manrope = Manrope({ variable: '--font-manrope', subsets: ['latin'], weight
 const dmMono = DM_Mono({ variable: '--font-dm-mono', subsets: ['latin'], weight: ['400', '500'] });
 
 const description =
-  'Muhammad Sultan Khalid, a frontend developer moving into AI engineering in Lahore, Pakistan. Building LLM-powered apps end to end with Python, FastAPI, Next.js and React.';
+  'Muhammad Sultan Khalid, an aspiring AI engineer in Lahore, Pakistan. Building LLM-powered apps end to end with Python, FastAPI, Claude and Next.js.';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://skportfolio-sigma.vercel.app'),
-  title: 'Muhammad Sultan Khalid | AI Engineer',
+  title: 'Muhammad Sultan Khalid | Aspiring AI Engineer',
   description,
   authors: [{ name: 'Muhammad Sultan Khalid' }],
   icons: { icon: '/favicon.svg' },
   openGraph: {
     type: 'website',
-    title: 'Muhammad Sultan Khalid | AI Engineer',
-    description: 'LLM-powered apps, end to end: from a Python backend to a React UI people actually use.',
+    title: 'Muhammad Sultan Khalid | Aspiring AI Engineer',
+    description: 'LLM-powered apps, end to end: retrieval, streaming and multi-provider backends in Python, with a UI people actually use.',
   },
   twitter: { card: 'summary' },
 };
