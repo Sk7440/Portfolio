@@ -1,0 +1,62 @@
+@import "tailwindcss";
+@import "lenis/dist/lenis.css";
+
+/* Fonts come from next/font in layout.tsx as CSS variables. */
+@theme inline {
+  --font-sans: var(--font-manrope), Arial, sans-serif;
+  --font-mono: var(--font-dm-mono), monospace;
+}
+
+@theme {
+  --color-bg: #0b0c0e;
+  --color-surface: #111317;
+  --color-surface2: #17191e;
+  --color-text: #f1f1ee;
+  --color-muted: #9b9da4;
+  --color-line: #282b31;
+  --color-accent: #c7f36b;
+  /* Secondary glow for "AI" moments: neural canvas pulses, gradients. */
+  --color-glow: #8f86ff;
+
+  --animate-marquee: marquee 38s linear infinite;
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+}
+
+@layer base {
+  /* Lenis handles smooth scrolling; native smooth scroll would fight it. */
+  body {
+    @apply bg-bg text-text font-sans leading-[1.65] overflow-x-clip;
+  }
+  section[id] {
+    scroll-margin-top: 76px;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+  #contact :focus-visible {
+    outline-color: var(--color-bg);
+  }
+}
+
+@utility wrap {
+  width: min(1120px, 100% - 32px);
+  margin-inline: auto;
+  @variant sm {
+    width: min(1120px, 100% - 44px);
+  }
+}
+
+/* Faint 48px grid that fades out toward the edges. */
+@utility grid-bg {
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.035) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000 30%, transparent 100%);
+}
+
